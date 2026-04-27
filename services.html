@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>כל אירוע מתחיל בפרח אחד — פרח בגני</title>
+    <meta name="description" content="חתונה, יום הולדת, אבל או קישוט רכב לחתן וכלה — פרח בגני מעצב כל רגע בפרחים טריים ומרגשים. גלה את כל השירותים שלנו והזמן היום!">
+    <meta name="keywords" content="זרי כלה, קישוט רכב לחתן וכלה, עיצוב פרחוני לאירועים, זרי אבל, פרח בגני">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: '75846aa7-c835-4bb5-b649-a339bb2d83d7',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="כל אירוע מתחיל בפרח אחד — פרח בגני">
+    <meta property="og:description" content="חתונה, יום הולדת, אבל או קישוט רכב לחתן וכלה — פרח בגני מעצב כל רגע בפרחים טריים ומרגשים. גלה את כל השירותים שלנו והזמן היום!">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="כל אירוע מתחיל בפרח אחד — פרח בגני">
+    <meta name="twitter:description" content="חתונה, יום הולדת, אבל או קישוט רכב לחתן וכלה — פרח בגני מעצב כל רגע בפרחים טריים ומרגשים. גלה את כל השירותים שלנו והזמן היום!">
+    <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: var(--text-dark, #333) !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+      [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 10px !important; padding-right: 28px !important; }
+      .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus (exclude catalog sub-menus that use <a> children instead of <li>) */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))):not(:has(> a)), .sub-menu:not(:has(li)):not(:has(> a)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .navbar .sub-menu.mobile-expanded, .nav-menu .sub-menu.mobile-expanded, #navMenu .sub-menu.mobile-expanded { max-height: none !important; overflow-y: visible !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-dark) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-dark) !important; white-space: normal !important; }
+        .sub-menu .zappy-nav-child > a { padding-left: 28px !important; font-size: 0.9em !important; opacity: 0.85 !important; }
+        [dir="rtl"] .sub-menu .zappy-nav-child > a, html[lang="he"] .sub-menu .zappy-nav-child > a, html[lang="ar"] .sub-menu .zappy-nav-child > a { padding-left: 0 !important; padding-right: 28px !important; }
+        .sub-menu .zappy-nav-parent > a { font-weight: 600 !important; }
+        .nav-menu.active, #navMenu.active { max-width: 100vw !important; overflow-x: hidden !important; box-sizing: border-box !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-dark) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="mobile-lang-menu-deployed-css">
+    @media (max-width: 768px) {
+      .lang-switcher,
+      .nav-cta-container .lang-switcher,
+      .nav-container .lang-switcher,
+      .navbar .lang-switcher,
+      .navbar .nav-cta-container .lang-switcher,
+      .nav-icons-left .lang-switcher,
+      .nav-ecommerce-icons .lang-switcher { display: none !important; }
+      .mobile-lang-menu { width: 100%; border-top: 1px solid rgba(128,128,128,0.2); padding: 8px 0 0 0; margin-top: 8px; }
+      .mobile-lang-toggle { display: flex !important; align-items: center; justify-content: space-between; width: 100%; padding: 12px 16px; background: none; border: none; cursor: pointer; font-size: 15px; color: inherit; font-family: inherit; }
+      .mobile-lang-toggle::after { content: ''; display: inline-block; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.3s ease; margin-left: 8px; }
+      .mobile-lang-toggle.expanded::after { transform: rotate(-135deg); }
+      .mobile-lang-options { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+      .mobile-lang-options.expanded { max-height: 300px; }
+      .mobile-lang-option { display: flex !important; align-items: center; gap: 10px; padding: 10px 24px; text-decoration: none; color: inherit; font-size: 14px; font-family: inherit; }
+      .mobile-lang-option:hover { background: rgba(128,128,128,0.1); }
+      .mobile-lang-option.active { font-weight: 600; opacity: 0.7; pointer-events: none; }
+      .mobile-lang-option img { width: 20px; height: 20px; border-radius: 50%; }
+    }
+    @media (min-width: 769px) {
+      .mobile-lang-menu { display: none !important; }
+    }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+
+  <button class="phone-header-btn" data-phone="[business_phone]" aria-label="Call">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+
+  <div class="nav-container">
+    <div class="nav-right-group"><div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img src="/assets/logo.webp" alt="פרח בגני" class="logo" />
+      </a>
+    </div><ul class="nav-menu" id="navMenu"><li><a href="/services">אירועים ושירותים</a></li><li><a href="/collections">קולקציות</a></li></ul></div>
+
+    
+
+    <div class="nav-cta-container">
+      <a href="/contact" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+<script>
+
+// Navbar Mobile Menu Toggle and Contrast Fix
+(function() {
+  // Use 'load' event instead of 'DOMContentLoaded' to ensure we run AFTER all other scripts
+  window.addEventListener('load', function() {
+    
+    // FIX MOBILE BUTTON CONTRAST
+    // Detect navbar background color and apply contrasting color to mobile buttons
+    const navbar = document.querySelector('.navbar, nav, header');
+    if (!navbar) {
+      console.log('[Navbar] Navbar element not found');
+      return;
+    }
+    
+    // DECLARE VARIABLES EARLY to avoid Temporal Dead Zone errors
+    // These are used in multiple places below
+    let mobileToggle = document.getElementById('mobileToggle') ||
+                       document.querySelector('.mobile-toggle') ||
+                       document.querySelector('.hamburger') ||
+                       document.querySelector('.hamburger-menu') ||
+                       document.querySelector('.menu-toggle') ||
+                       document.querySelector('.burger-menu') ||
+                       document.querySelector('[aria-label="Menu"]') ||
+                       document.querySelector('[aria-label="תפריט"]');
+    
+    const phoneBtn = document.querySelector('.phone-header-btn');
+    
+    const computedStyle = window.getComputedStyle(navbar);
+    let bgColor = computedStyle.backgroundColor;
+    
+    console.log('[Navbar] Initial navbar background:', bgColor);
+    
+    // Check if background is transparent or rgba with 0 alpha
+    const isTransparent = bgColor === 'transparent' || 
+                         bgColor === 'rgba(0, 0, 0, 0)' ||
+                         (bgColor.startsWith('rgba') && bgColor.includes(', 0)'));
+    
+    if (isTransparent) {
+      // Check for background-image or gradient
+      const bgImage = computedStyle.backgroundImage;
+      if (bgImage && bgImage !== 'none') {
+        console.log('[Navbar] Navbar has background image/gradient, using dark text');
+        bgColor = 'rgb(240, 240, 240)'; // Assume light background
+      } else {
+        // Transparent navbar - check body background
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        console.log('[Navbar] Navbar transparent, using body background:', bodyBg);
+        bgColor = bodyBg;
+      }
+    }
+    
+    // Calculate luminance to determine if background is light or dark
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb && rgb.length >= 3) {
+      const r = parseInt(rgb[0]);
+      const g = parseInt(rgb[1]);
+      const b = parseInt(rgb[2]);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      
+      // Mobile button colors are set by Claude's AI-generated CSS (same as .nav-menu a)
+      // No dynamic color overrides needed - colors come from the generated navbar CSS
+      console.log('[Navbar] Mobile button colors preserved from Claude CSS (luminance:', luminance.toFixed(2) + ')');
+      
+      // FIX ICON SIZES - Ensure SVGs are properly sized and visible
+      // INJECT CRITICAL CSS TO OVERRIDE ANY CONFLICTING RULES
+      const criticalCSS = document.createElement('style');
+      criticalCSS.id = 'zappy-mobile-nav-fix';
+      const htmlLang = document.documentElement.lang || 'en';
+      const htmlDir = document.documentElement.dir || 'ltr';
+      // Check both dir attribute AND lang for RTL detection
+      // dir="rtl" is the most reliable indicator
+      const isRTL = htmlDir === 'rtl' || htmlLang === 'he' || htmlLang === 'ar';
+      
+      criticalCSS.textContent = `
+        /* Hide mobile buttons on desktop, show only on mobile */
+        @media (min-width: 769px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            display: none !important;
+          }
+        }
+        
+        /* Show and position mobile buttons correctly on mobile */
+        @media (max-width: 768px) {
+          .mobile-toggle,
+          .phone-header-btn {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            z-index: 1001 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 6px !important;
+            background: none !important;
+            color: var(--nav-text, var(--text-dark)) !important;
+          }
+          
+          /* LTR positioning (default): hamburger LEFT, phone RIGHT */
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .mobile-toggle,
+          html[dir="ltr"] .mobile-toggle {
+            left: 12px !important;
+            right: auto !important;
+          }
+          html:not([dir="rtl"]):not([lang="he"]):not([lang="ar"]) .phone-header-btn,
+          html[dir="ltr"] .phone-header-btn {
+            right: 12px !important;
+            left: auto !important;
+          }
+          
+          /* RTL positioning: hamburger RIGHT, phone LEFT */
+          html[dir="rtl"] .mobile-toggle,
+          html[lang="he"] .mobile-toggle,
+          html[lang="ar"] .mobile-toggle {
+            right: 12px !important;
+            left: auto !important;
+          }
+          html[dir="rtl"] .phone-header-btn,
+          html[lang="he"] .phone-header-btn,
+          html[lang="ar"] .phone-header-btn {
+            left: 12px !important;
+            right: auto !important;
+          }
+          
+          /* CRITICAL: Ensure nav-container has min-height on mobile */
+          /* All children are positioned absolutely/fixed on mobile, so height:auto collapses to 0 */
+          .nav-container {
+            min-height: 70px !important;
+            position: relative !important;
+          }
+          
+          /* Ensure SVG icons are properly sized and inherit color */
+          .mobile-toggle svg,
+          .phone-header-btn svg {
+            width: 24px !important;
+            height: 24px !important;
+            /* Don't force display - let JavaScript control hamburger/close toggle */
+          }
+          
+          /* Reset nav-cta-container on mobile - remove desktop box-shadow/padding */
+          /* that creates a visible ghost box when CTA button is hidden */
+          .nav-cta-container {
+            box-shadow: none !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide nav-cta-container entirely on mobile when there's no lang-switcher */
+          /* (only the CTA button is inside, and it's hidden on mobile) */
+          .nav-cta-container:not(:has(.lang-switcher)) {
+            display: none !important;
+          }
+          
+          /* CRITICAL: Prevent hero image fade gradient from bleeding over headline text */
+          /* The .image-fade-gradient has bottom: -30px (extends below parent) */
+          /* On mobile stacked layout, this overlaps the h1 text below the image */
+          .hero-image-column {
+            overflow: hidden !important;
+          }
+          .image-fade-gradient {
+            bottom: 0 !important;
+          }
+          
+          /* Hide desktop language switcher on mobile - hamburger menu handles it */
+          /* High specificity to override stored CSS */
+          .lang-switcher,
+          .nav-cta-container .lang-switcher,
+          .nav-container .lang-switcher,
+          .navbar .lang-switcher,
+          .navbar .nav-cta-container .lang-switcher {
+            display: none !important;
+          }
+        }
+      `;
+      
+      // Remove existing fix if present and inject new one
+      const existing = document.getElementById('zappy-mobile-nav-fix');
+      if (existing) existing.remove();
+      document.head.appendChild(criticalCSS);
+      
+      console.log('[Navbar] Critical CSS injected for mobile nav positioning');
+      
+      // ONLY apply inline positioning styles on mobile viewport
+      // On desktop, the CSS handles hiding these buttons with display: none
+      // Inline styles were breaking desktop layout by overriding CSS
+      const isMobileViewport = window.innerWidth <= 768;
+      
+      if (mobileToggle) {
+        // Icon sizing applies to all viewports for consistency
+        const hamburgerIcon = mobileToggle.querySelector('.hamburger-icon');
+        const closeIcon = mobileToggle.querySelector('.close-icon');
+        
+        if (hamburgerIcon) {
+          hamburgerIcon.style.setProperty('width', '24px', 'important');
+          hamburgerIcon.style.setProperty('height', '24px', 'important');
+          hamburgerIcon.style.setProperty('display', 'block', 'important'); // Show hamburger by default
+        }
+        if (closeIcon) {
+          closeIcon.style.setProperty('width', '24px', 'important');
+          closeIcon.style.setProperty('height', '24px', 'important');
+          closeIcon.style.setProperty('display', 'none', 'important'); // Hide close icon by default
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          mobileToggle.style.setProperty('position', 'absolute', 'important');
+          mobileToggle.style.setProperty('top', '50%', 'important');
+          mobileToggle.style.setProperty('transform', 'translateY(-50%)', 'important');
+          mobileToggle.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          
+          console.log('[Navbar] Mobile toggle positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          mobileToggle.style.removeProperty('position');
+          mobileToggle.style.removeProperty('top');
+          mobileToggle.style.removeProperty('transform');
+          mobileToggle.style.removeProperty('z-index');
+          mobileToggle.style.removeProperty('left');
+          mobileToggle.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared mobile toggle inline positioning');
+        }
+      }
+      
+      if (phoneBtn) {
+        // Icon sizing applies to all viewports
+        const phoneIcon = phoneBtn.querySelector('svg');
+        if (phoneIcon) {
+          phoneIcon.style.width = '24px';
+          phoneIcon.style.height = '24px';
+          phoneIcon.setAttribute('width', '24');
+          phoneIcon.setAttribute('height', '24');
+        }
+        
+        // ONLY set positioning inline styles on mobile
+        if (isMobileViewport) {
+          phoneBtn.style.setProperty('position', 'absolute', 'important');
+          phoneBtn.style.setProperty('top', '50%', 'important');
+          phoneBtn.style.setProperty('transform', 'translateY(-50%)', 'important');
+          phoneBtn.style.setProperty('z-index', '1001', 'important');
+          
+          // Clear any inline left/right so CSS can take over based on html[dir]
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          
+          console.log('[Navbar] Phone button positioning applied (mobile viewport)');
+        } else {
+          // On desktop, clear any positioning styles to let CSS handle it
+          phoneBtn.style.removeProperty('position');
+          phoneBtn.style.removeProperty('top');
+          phoneBtn.style.removeProperty('transform');
+          phoneBtn.style.removeProperty('z-index');
+          phoneBtn.style.removeProperty('left');
+          phoneBtn.style.removeProperty('right');
+          console.log('[Navbar] Desktop viewport - cleared phone button inline positioning');
+        }
+      }
+    } else {
+      console.log('[Navbar] Could not parse background color:', bgColor);
+    }
+    
+    // MOBILE MENU TOGGLE
+    // Re-query in case DOM changed (mobileToggle already declared at top of function)
+    mobileToggle = document.getElementById('mobileToggle') ||
+                   document.querySelector('.mobile-toggle') ||
+                   document.querySelector('.hamburger') ||
+                   document.querySelector('.hamburger-menu') ||
+                   document.querySelector('.menu-toggle') ||
+                   document.querySelector('.burger-menu') ||
+                   document.querySelector('[aria-label="Menu"]') ||
+                   document.querySelector('[aria-label="תפריט"]');
+    
+    // EXPANDED SEARCH: Find nav menu by ID or class
+    const navMenu = document.getElementById('navMenu') ||
+                  document.querySelector('.nav-menu') ||
+                  document.querySelector('.nav-links') ||
+                  document.querySelector('nav ul:not(.submenu)');
+    
+    if (!mobileToggle || !navMenu) {
+      console.log('[Navbar] Mobile toggle or menu not found:', { toggle: !!mobileToggle, menu: !!navMenu });
+      return;
+    }
+    
+    // Ensure navMenu has ID for CSS targeting
+    if (!navMenu.id) {
+      navMenu.id = 'navMenu';
+    }
+    
+    console.log('[Navbar] Initializing mobile menu...');
+    
+    // Remove any existing event listeners by cloning the button
+    const newToggle = mobileToggle.cloneNode(true);
+    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+    
+    // Toggle menu on button click - use newToggle now
+    newToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const hamburgerIcon = this.querySelector('.hamburger-icon');
+      const closeIcon = this.querySelector('.close-icon');
+      const isActive = navMenu.classList.contains('active');
+      
+      if (isActive) {
+        // Close menu
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed');
+      } else {
+        // Open menu
+        navMenu.classList.add('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'none', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'block', 'important');
+        document.body.style.overflow = 'hidden';
+        console.log('[Navbar] Menu opened');
+      }
+    });
+    
+    // Close menu when clicking nav links (but NOT dropdown toggles)
+    const navLinks = navMenu.querySelectorAll('a');
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        // Don't close if it's a dropdown child (unless it's a real navigation link)
+        if (this.getAttribute('href') === '#') return;
+        
+        const hamburgerIcon = newToggle.querySelector('.hamburger-icon');
+        const closeIcon = newToggle.querySelector('.close-icon');
+        
+        navMenu.classList.remove('active');
+        if (hamburgerIcon) hamburgerIcon.style.setProperty('display', 'block', 'important');
+        if (closeIcon) closeIcon.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+        console.log('[Navbar] Menu closed (link clicked)');
+      });
+    });
+    
+    // DROPDOWN MENU TOGGLE (for mobile and touch devices)
+    var dropdownToggles = navMenu.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(function(toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var parent = this.closest('.nav-dropdown');
+        if (!parent) return;
+        
+        // Close other open dropdowns at the same level
+        var siblings = parent.parentNode.querySelectorAll('.nav-dropdown.open');
+        siblings.forEach(function(sib) {
+          if (sib !== parent) sib.classList.remove('open');
+        });
+        
+        parent.classList.toggle('open');
+        console.log('[Navbar] Dropdown toggled:', parent.classList.contains('open') ? 'open' : 'closed');
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-dropdown')) {
+        var openDropdowns = document.querySelectorAll('.nav-dropdown.open');
+        openDropdowns.forEach(function(dd) { dd.classList.remove('open'); });
+      }
+    });
+    
+    console.log('[Navbar] Dropdown handlers initialized for ' + dropdownToggles.length + ' dropdowns');
+    
+    // Phone button functionality (phoneBtn already declared at top of function)
+    if (phoneBtn) {
+      phoneBtn.addEventListener('click', function() {
+        // Get phone number from placeholder in page or use default
+        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+        const phoneNumber = phoneLinks.length > 0 
+          ? phoneLinks[0].getAttribute('href').replace('tel:', '')
+          : '[business_phone]';
+        
+        window.location.href = 'tel:' + phoneNumber;
+        console.log('[Navbar] Phone button clicked');
+      });
+    }
+    
+    console.log('[Navbar] Mobile menu initialized successfully');
+    
+    // === WHATSAPP BUTTON VISIBILITY FIX ===
+    // Ensure WhatsApp floating button is hidden on desktop and visible on mobile
+    // IMPORTANT: Only target the floating button by its class, NOT generic wa.me links
+    const handleWhatsAppVisibility = function() {
+      const whatsappBtn = document.querySelector('.whatsapp-float');
+      if (whatsappBtn) {
+        const isDesktop = window.innerWidth >= 769;
+        if (isDesktop) {
+          whatsappBtn.style.setProperty('display', 'none', 'important');
+          whatsappBtn.style.setProperty('visibility', 'hidden', 'important');
+          whatsappBtn.style.setProperty('opacity', '0', 'important');
+          whatsappBtn.style.setProperty('pointer-events', 'none', 'important');
+          console.log('[WhatsApp] Button hidden on desktop');
+        } else {
+          whatsappBtn.style.removeProperty('display');
+          whatsappBtn.style.removeProperty('visibility');
+          whatsappBtn.style.removeProperty('opacity');
+          whatsappBtn.style.removeProperty('pointer-events');
+          console.log('[WhatsApp] Button visible on mobile');
+        }
+      }
+    };
+    
+    // Run on load
+    handleWhatsAppVisibility();
+    
+    // Run on resize with debouncing
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleWhatsAppVisibility, 100);
+    });
+  });
+})();
+
+</script>
+  
+  <main>
+    <section class="services-intro-section" data-layout-spec="אירועים ושירותים-intro" dir="rtl">
+  <!-- Decorative floral branch ornament -->
+  <svg class="services-intro-decor-branch" data-no-icon-edit="true" aria-hidden="true" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M80 190 C80 190 60 160 55 130 C50 100 70 80 80 60 C90 40 85 20 80 10" stroke="#C8A96E" stroke-width="1.5" fill="none" opacity="0.35"></path>
+    <path d="M80 140 C80 140 50 130 35 115 C25 105 28 90 40 85" stroke="#C8A96E" stroke-width="1.2" fill="none" opacity="0.3"></path>
+    <path d="M80 110 C80 110 105 100 115 82 C122 68 115 55 105 52" stroke="#C8A96E" stroke-width="1.2" fill="none" opacity="0.3"></path>
+    <path d="M80 75 C80 75 58 68 50 52 C44 40 50 28 60 26" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.25"></path>
+    <circle cx="35" cy="85" r="5" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.3"></circle>
+    <circle cx="105" cy="52" r="4" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.3"></circle>
+    <circle cx="60" cy="26" r="4" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.25"></circle>
+    <circle cx="80" cy="10" r="5" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.25"></circle>
+    <ellipse cx="42" cy="100" rx="6" ry="4" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.2" transform="rotate(-30 42 100)"></ellipse>
+    <ellipse cx="110" cy="68" rx="5" ry="3.5" stroke="#C8A96E" stroke-width="1" fill="none" opacity="0.2" transform="rotate(20 110 68)"></ellipse>
+  </svg>
+
+  <div class="services-intro-container">
+    <!-- Text column (RIGHT side in RTL) -->
+    <div class="services-intro-text">
+      <div class="services-intro-label">
+        <span class="services-intro-label-line"></span>
+        <span class="services-intro-label-text">פרח בגני · רחובות</span>
+      </div>
+
+      <h1 class="services-intro-heading">עיצוב פרחוני לכל
+        <em>רגע מיוחד</em>
+      </h1>
+
+      <div class="services-intro-accent-rule"></div>
+
+      <p class="services-intro-lead">בפרח בגני אנו מציעים מגוון רחב של שירותי פרחים ועיצוב פרחוני בעבודת יד — מזרי יום הולדת וזרי כלה מרהיבים, דרך קישוט רכבים לחתן וכלה, ועד זרי אבל מכובדים. כל זר מוכן ביד אוהבת מפרחים טריים המגיעים מדי יום.</p>
+
+      <p class="services-intro-body">אצלנו תמצאו גם פרחים מיובשים, סחלבים, צמחים, עציצים, אגרטלים ובלוני הליום — הכל במקום אחד חם ומקצועי ברחוב אחד העם 4, רחובות. אנו מציעים <strong>משלוח פרחים טריים</strong> לכל רחבי האזור, לצד אפשרות לאיסוף עצמי נוח.</p>
+
+      <ul class="services-intro-list">
+        <li>
+          <span class="services-intro-list-icon" aria-hidden="true">
+            <svg data-element-type="icon" data-icon-type="svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><path d="M10 2C7.2 2 5 4.2 5 7c0 4 5 9 5 9s5-5 5-9c0-2.8-2.2-5-5-5z" stroke="currentColor" stroke-width="1.4" fill="none"></path><circle cx="10" cy="7" r="1.8" stroke="currentColor" stroke-width="1.4" fill="none"></circle></svg>
+          </span>
+          <span>אחד העם 4, רחובות</span>
+        </li>
+        <li>
+          <span class="services-intro-list-icon" aria-hidden="true">
+            <svg data-element-type="icon" data-icon-type="svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><rect x="3" y="5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"></rect><path d="M3 8h14" stroke="currentColor" stroke-width="1.4"></path><path d="M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+          </span>
+          <span>פרחים טריים יום יום</span>
+        </li>
+        <li>
+          <span class="services-intro-list-icon" aria-hidden="true">
+            <svg data-element-type="icon" data-icon-type="svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><path d="M3 10h2l2-6 3 12 2-8 2 4 1-2h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+          </span>
+          <span>משלוחים ואיסוף עצמי</span>
+        </li>
+        <li>
+          <span class="services-intro-list-icon" aria-hidden="true">
+            <svg data-element-type="icon" data-icon-type="svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><path d="M10 3C7 3 5 5.5 5 8c0 1.5.6 2.8 1.5 3.7L10 17l3.5-5.3C14.4 10.8 15 9.5 15 8c0-2.5-2-5-5-5z" stroke="currentColor" stroke-width="1.4" fill="none"></path><path d="M8 8.5c.4.8 1.1 1.4 2 1.4s1.6-.6 2-1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"></path></svg>
+          </span>
+          <span>עיצוב אישי לכל אירוע</span>
+        </li>
+      </ul>
+
+      <div class="services-intro-cta">
+        <a href="#contact" class="services-intro-btn-primary">צרו קשר</a>
+        <a href="tel:0537259560" class="services-intro-btn-ghost">053-7259560</a>
+      </div>
+    </div>
+
+    <!-- Image column (LEFT side in RTL) -->
+    <div class="services-intro-image-col">
+      <div class="services-intro-image-frame">
+        <div class="services-intro-image-mat">
+          <figure class="services-intro-figure">
+            <img data-placeholder="services-intro-image-1" data-context="Elegant tall floral arrangement for a luxury flower shop in Israel: a handcrafted bridal bouquet or celebration arrangement featuring garden roses, eucalyptus sprigs, white orchids, and dried pampas grass in soft blush, ivory, and sage tones, placed on a marble surface with soft natural light, editorial gallery style, vertical portrait orientation" width="480" height="620" src="/assets/site-services-intro-image-1.webp" alt="עיצוב פרחוני מקצועי לאירועים — פרח בגני רחובות">
+          </figure>
+        </div>
+        <!-- Decorative corner accent -->
+        <div class="services-intro-frame-corner services-intro-frame-corner--tl" aria-hidden="true"></div>
+        <div class="services-intro-frame-corner services-intro-frame-corner--br" aria-hidden="true"></div>
+      </div>
+
+      <!-- Floating tag badge -->
+      <div class="services-intro-badge" aria-hidden="true">
+        <span class="services-intro-badge-icon">
+          <svg data-element-type="icon" data-icon-type="svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M12 2C9 2 6 4.5 6 8c0 2.5 1.5 4.7 3.5 5.8L12 22l2.5-8.2C16.5 12.7 18 10.5 18 8c0-3.5-3-6-6-6z" stroke="currentColor" stroke-width="1.5" fill="none"></path><circle cx="12" cy="8" r="2" stroke="currentColor" stroke-width="1.5" fill="none"></circle></svg>
+        </span>
+        <span class="services-intro-badge-text">עיצוב בעבודת יד</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services-features-section" data-layout-spec="אירועים ושירותים-features" dir="rtl">
+  <div class="services-features-container">
+
+    <!-- Section Header -->
+    <div class="services-features-header">
+      <div class="services-features-label">
+        <svg data-no-icon-edit="true" aria-hidden="true" width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 12 C26 6, 20 4, 16 8 C12 12, 16 18, 22 16 C26 14, 28 10, 30 12 C32 14, 34 18, 38 16 C44 14, 48 8, 44 4 C40 0, 34 2, 30 12Z" fill="#C8A96E" opacity="0.55"></path>
+          <circle cx="30" cy="12" r="2" fill="#C8A96E" opacity="0.7"></circle>
+        </svg>
+        <span>השירותים שלנו</span>
+        <svg data-no-icon-edit="true" aria-hidden="true" width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: scaleX(-1);">
+          <path d="M30 12 C26 6, 20 4, 16 8 C12 12, 16 18, 22 16 C26 14, 28 10, 30 12 C32 14, 34 18, 38 16 C44 14, 48 8, 44 4 C40 0, 34 2, 30 12Z" fill="#C8A96E" opacity="0.55"></path>
+          <circle cx="30" cy="12" r="2" fill="#C8A96E" opacity="0.7"></circle>
+        </svg>
+      </div>
+      <h2 class="services-features-title">עיצוב פרחוני לכל אירוע</h2>
+      <p class="services-features-subtitle">בפרח בגני תמצאו זרים מרהיבים לכל רגע מיוחד — מיום הולדת ועד חופה — מפרחים טריים שמגיעים יום יום</p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="services-features-grid">
+
+      <!-- Card 1: Birthday Bouquets -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-1" data-context="A vibrant colorful birthday flower bouquet wrapped in elegant tissue paper with ribbons, featuring sunflowers, roses, and seasonal blooms in warm yellows and pinks, photographed on a light background for a florist shop in Rehovot Israel" width="600" height="400" src="/assets/site-services-features-image-1.webp" alt="זרי יום הולדת צבעוניים ומרהיבים">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path><path d="M12 6v6l4 2"></path></svg>
+            <span>יום הולדת</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">זרי יום הולדת</h3>
+          <p class="services-feature-desc">זרי יום הולדת מרהיבים המורכבים מפרחים טריים ועונתיים, מעוצבים בצבעים שמחים ומלאי חיים. כל זר מוכן בקפידה ומועטף בסגנון שיגרום לנמענ/ת להרגיש מיוחד/ת.</p>
+        </div>
+      </article>
+
+      <!-- Card 2: Proposal/Anniversary Bouquets -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-2" data-context="An elegant romantic proposal or anniversary bouquet featuring deep red and blush pink roses with white baby breath, wrapped in luxurious satin ribbon, soft romantic lighting, for a premium florist shop" width="600" height="400" src="/assets/site-services-features-image-2.webp" alt="זרי הצעת נישואין ויום נישואין רומנטיים">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span>הצעה ונישואין</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">זרי הצעת נישואין</h3>
+          <p class="services-feature-desc">רגעים שנחרתים בזיכרון לנצח ראויים לזר שמדבר בשפת הלב. זרי הצעת נישואין ויום נישואין מעוצבים ברומנטיות מרבית, עם ורדים, אדמוניות ופרחי פרימיום.</p>
+        </div>
+      </article>
+
+      <!-- Card 3: Bridal Bouquets -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-3" data-context="A stunning white and ivory bridal bouquet with garden roses, peonies, eucalyptus greenery and delicate white flowers, held by bride on wedding day, elegant and luxurious floral arrangement for Israeli wedding" width="600" height="400" src="/assets/site-services-features-image-3.webp" alt="זרי כלה אלגנטיים לחתונה">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>כלה</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">זרי כלה</h3>
+          <p class="services-feature-desc">זרי כלה מרהיבים המעוצבים בהתאמה אישית לסגנון ולחלום של כל כלה. שילוב מושלם של ורדי גן, אדמוניות, ירק עדין ופרחים עונתיים שיהפכו את ההליכה לחופה לרגע בלתי נשכח.</p>
+        </div>
+      </article>
+
+      <!-- Card 4: Flower Crowns -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-4" data-context="A beautiful fresh flower crown wreath made with small white and pink blooms, baby breath, and green leaves, worn as a head accessory for a wedding or celebration, handcrafted by a florist in Israel" width="600" height="400" src="/assets/site-services-features-image-4.webp" alt="זרים לראש מפרחים טריים">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8c-1.5 0-3 .5-4 1.5"></path><path d="M12 8c1.5 0 3 .5 4 1.5"></path></svg>
+            <span>זרים לראש</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">זרים לראש</h3>
+          <p class="services-feature-desc">עטרות פרחים עדינות ומרהיבות לכלות, שושבינות, ובנות בת מצווה. כל זר ראש מורכב ביד מפרחים טריים ומעוצב בהתאמה לסגנון האישי ולצבעי האירוע.</p>
+        </div>
+      </article>
+
+      <!-- Card 5: Anniversary / Special Occasion -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-5" data-context="Elegant anniversary flower arrangement with pastel pink and cream roses, dusty miller foliage, and ribbon in a glass vase, romantic and refined, for a boutique florist in Rehovot Israel celebrating special occasions" width="600" height="400" src="/assets/site-services-features-image-5.webp" alt="זרי יום נישואין ואירועים מיוחדים">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>יום נישואין</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">זרי יום נישואין</h3>
+          <p class="services-feature-desc">חגגו כל שנה מחדש עם זר שמספר את הסיפור שלכם. זרי יום נישואין מעוצבים בטעם ובאיכות גבוהה, עם פרחים טריים שנבחרים בקפידה ומועטפים בסגנון רומנטי ומרגש.</p>
+        </div>
+      </article>
+
+      <!-- Card 6: Wedding Car Decoration -->
+      <article class="services-feature-card">
+        <div class="services-feature-thumb">
+          <img data-placeholder="services-features-image-6" data-context="A beautifully decorated wedding car with fresh white and pink flower arrangements on the hood, ribbons and floral garlands attached to the vehicle for a bride and groom, festive and elegant Israeli wedding car decoration" width="600" height="400" src="/assets/site-services-features-image-6.webp" alt="קישוט רכב חתן וכלה בפרחים טריים">
+          <div class="services-feature-badge">
+            <svg data-element-type="icon" data-icon-type="svg" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5"></path><circle cx="16" cy="17" r="2"></circle><circle cx="7" cy="17" r="2"></circle><path d="M13 17H9"></path></svg>
+            <span>קישוט רכב</span>
+          </div>
+        </div>
+        <div class="services-feature-body">
+          <div class="services-feature-accent-line"></div>
+          <h3 class="services-feature-title">קישוט רכב חתן כלה</h3>
+          <p class="services-feature-desc">הפכו את הנסיעה לחופה לחוויה בלתי נשכחת עם קישוט רכב פרחוני מרהיב. אנו מעצבים קישוטים מפרחים טריים שיהפכו את הרכב לחלק בלתי נפרד מהיום המיוחד שלכם.</p>
+        </div>
+      </article>
+
+    </div>
+    <!-- End Grid -->
+
+    <!-- Bottom CTA -->
+    <div class="services-features-cta">
+      <a href="/contact" class="services-features-btn">צרו קשר להזמנה</a>
+    </div>
+
+  </div>
+</section>
+
+<section class="services-portfolio-section" data-layout-spec="אירועים ושירותים-portfolio" dir="rtl">
+  <div class="services-portfolio-container">
+
+    <!-- Section Header -->
+    <div class="services-portfolio-header">
+      <span class="services-portfolio-label">גלריית עבודות</span>
+      <h2 class="services-portfolio-title">פרחים לכל רגע מיוחד</h2>
+      <p class="services-portfolio-desc">מזרי כלה עדינים ועיצובי חתונה מרהיבים ועד זרי יום הולדת צבעוניים ועיצובים לכל אירוע — אנחנו מביאים יופי, רעננות ורגש לכל רגע משמעותי בחייכם.</p>
+    </div>
+
+    <!-- Asymmetric Gallery Grid -->
+    <div class="services-portfolio-grid">
+
+      <!-- Large Wedding Tile (START / RIGHT side in RTL) -->
+      <article class="portfolio-tile portfolio-tile--large">
+        <div class="portfolio-tile-inner">
+          <img data-placeholder="services-portfolio-image-1" data-context="Elegant bridal floral arrangement for a wedding in Israel — a stunning bridal bouquet of white garden roses, soft eucalyptus, delicate baby breath and blush peonies held by a bride in a white gown. Bright natural editorial light, luxury floral photography style, warm ivory background." width="600" height="750" src="/assets/site-services-portfolio-image-1.webp" alt="זר כלה מפואר — ורדי גן לבנים ופרחי ניחוח">
+          <div class="portfolio-tile-backplate portfolio-tile-backplate--large" aria-hidden="true"></div>
+          <div class="portfolio-tile-caption">
+            <span class="portfolio-tile-tag">חתן וכלה</span>
+            <h3 class="portfolio-tile-name">זרי כלה ועיצוב חתונה</h3>
+          </div>
+        </div>
+      </article>
+
+      <!-- Staggered Stack (END / LEFT side in RTL) -->
+      <div class="portfolio-stack">
+
+        <!-- Stack Tile 1 — Birthday -->
+        <article class="portfolio-tile portfolio-tile--small portfolio-tile--offset-top">
+          <div class="portfolio-tile-inner">
+            <img data-placeholder="services-portfolio-image-2" data-context="Vibrant colorful birthday flower bouquet in a flower shop in Rehovot Israel — a cheerful arrangement of sunflowers, orange gerberas, purple statice and lush greenery wrapped in kraft paper with a ribbon. Bright natural light, editorial floral photography." width="400" height="300" src="/assets/site-services-portfolio-image-2.webp" alt="זר פרחים לעם הולדת — חמניות וגרברות צבעוניות">
+            <div class="portfolio-tile-backplate portfolio-tile-backplate--small-1" aria-hidden="true"></div>
+            <div class="portfolio-tile-caption">
+              <span class="portfolio-tile-tag">ימי הולדת</span>
+              <h3 class="portfolio-tile-name">זרי יום הולדת</h3>
+            </div>
+          </div>
+        </article>
+
+        <!-- Stack Tile 2 — Sympathy / Dried -->
+        <article class="portfolio-tile portfolio-tile--small">
+          <div class="portfolio-tile-inner">
+            <img data-placeholder="services-portfolio-image-3" data-context="Elegant dried flower arrangement in a boutique Israeli flower shop — a sophisticated bouquet of dried pampas grass, preserved roses, cotton branches, and lunaria in muted blush and cream tones, arranged in a minimalist ceramic vase. Soft natural light, editorial style." width="400" height="300" src="/assets/site-services-portfolio-image-3.webp" alt="זר פרחים מיובשים — פמפס, ורדים משומרים ועלי כותנה">
+            <div class="portfolio-tile-caption">
+              <span class="portfolio-tile-tag">פרחים מיובשים</span>
+              <h3 class="portfolio-tile-name">עיצוב פרחים מיובשים</h3>
+            </div>
+          </div>
+        </article>
+
+        <!-- Stack Tile 3 — Car Decoration -->
+        <article class="portfolio-tile portfolio-tile--small portfolio-tile--offset-end">
+          <div class="portfolio-tile-inner">
+            <img data-placeholder="services-portfolio-image-4" data-context="Wedding car floral decoration in Israel — a white luxury car hood adorned with a romantic arch of white roses, greenery and ribbon bows. Bright outdoor daylight, festive and elegant, editorial photography style." width="400" height="300" src="/assets/site-services-portfolio-image-4.webp" alt="קישוט רכב לחתן וכלה — פרחים לבנים ואדומים">
+            <div class="portfolio-tile-caption">
+              <span class="portfolio-tile-tag">קישוט רכב</span>
+              <h3 class="portfolio-tile-name">קישוט רכב חתן וכלה</h3>
+            </div>
+          </div>
+        </article>
+
+      </div>
+      <!-- end stack -->
+    </div>
+    <!-- end grid -->
+
+    <!-- CTA Strip -->
+    <div class="services-portfolio-cta">
+      <p class="services-portfolio-cta-text">רוצים לתכנן את האירוע שלכם? <strong>פרח בגני</strong> — פרחים טריים יום יום, ברחובות.</p>
+      <a href="/contact" class="btn-primary services-portfolio-btn">
+        <i class="fa-solid fa-phone" aria-hidden="true"></i>
+        צרו קשר
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section class="services-capabilities-section" data-layout-spec="אירועים ושירותים-capabilities" dir="rtl">
+  <div class="services-capabilities-container">
+    <div class="services-capabilities-header">
+      <span class="services-capabilities-label">השירותים שלנו</span>
+      <h2 class="services-capabilities-title">כל מה שצריך — מהלב ומהגינה</h2>
+      <p class="services-capabilities-subtitle">ב<strong>פרח בגני</strong> אנו מציעים מגוון שלם של שירותי פרחים ועיצוב פרחוני לכל אירוע ורגע בחיים, עם ליווי אישי וחמים.</p>
+    </div>
+    <div class="services-capabilities-grid">
+
+      <article class="services-cap-card">
+        <div class="services-cap-icon-wrap" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path><path d="M12 6c-1.5 2-2 4-2 6s.5 4 2 6"></path><path d="M12 6c1.5 2 2 4 2 6s-.5 4-2 6"></path><path d="M6 12h12"></path></svg>
+        </div>
+        <div class="services-cap-content">
+          <h3 class="services-cap-title">עיצוב לחתונות ואירועים</h3>
+          <p class="services-cap-desc">מזרי כלה עדינים ועד קישוטי רכב לחתן וכלה — אנו מעצבים כל פרט בסגנון אישי ומרגש. כל זר ועיצוב נבנה בקפידה בהתאם לחזון שלכם ולאופי האירוע.</p>
+          <div class="services-cap-divider" aria-hidden="true"></div>
+          <ul class="services-cap-list">
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>זרי כלה וזרי ראש</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>קישוט רכבים לחתן וכלה</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>עיצוב שולחנות ומרחבים</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="services-cap-card">
+        <div class="services-cap-icon-wrap" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="services-cap-content">
+          <h3 class="services-cap-title">ליווי אישי ומקומי</h3>
+          <p class="services-cap-desc">אנחנו שכנים, לא רק מוכרים. בפרח בגני ברחובות תמיד תקבלו עצה כנה, הצעה מותאמת אישית ואת הפרחים הטריים ביותר שהגיעו היום בבוקר. כי כל לקוח הוא סיפור לעצמו.</p>
+          <div class="services-cap-divider" aria-hidden="true"></div>
+          <ul class="services-cap-list">
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>ייעוץ פרחוני ללא עלות</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>פרחים טריים יום יום</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>הכרות אישית עם הצרכים שלכם</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="services-cap-card">
+        <div class="services-cap-icon-wrap" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </div>
+        <div class="services-cap-content">
+          <h3 class="services-cap-title">לכל רגע בחיים</h3>
+          <p class="services-cap-desc">שמחות ואבל, יום הולדת ויום נישואין, הצעת נישואין ואבל — פרחים מלווים כל רגע. אנו מציעים פתרונות עיצוב פרחוני הולמים ומכובדים לכל אירוע, גם הרגישים שבהם.</p>
+          <div class="services-cap-divider" aria-hidden="true"></div>
+          <ul class="services-cap-list">
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>זרי יום הולדת ויום נישואין</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>זרי הצעת נישואין</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>זרי אבל בטעם ובכבוד</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="services-cap-card">
+        <div class="services-cap-icon-wrap" aria-hidden="true">
+          <svg data-element-type="icon" data-icon-type="svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"></rect><path d="M16 8h4l3 5v3h-7V8z"></path><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        </div>
+        <div class="services-cap-content">
+          <h3 class="services-cap-title">משלוח פרחים טריים ואיסוף עצמי</h3>
+          <p class="services-cap-desc">נוח לכם להזמין מהבית? אנחנו מגיעים אליכם עם <strong>משלוח פרחים</strong> מהיר ואמין. מעדיפים לבחור בעצמכם? אנחנו ממתינים לכם בחנות ברחוב אחד העם 4, רחובות.</p>
+          <div class="services-cap-divider" aria-hidden="true"></div>
+          <ul class="services-cap-list">
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>משלוח פרחים לרחובות והסביבה</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>איסוף עצמי נוח ומהיר</span></li>
+            <li><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span>הזמנות בטלפון: 053-7259560</span></li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <!-- Decorative leaf sprig accent -->
+  <svg class="services-cap-leaf-deco" aria-hidden="true" data-no-icon-edit="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" fill="none">
+    <path d="M30 55 C30 55 10 40 15 20 C20 5 30 5 30 5 C30 5 40 5 45 20 C50 40 30 55 30 55Z" stroke="#C8A96E" stroke-width="1.2" fill="none" opacity="0.45"></path>
+    <path d="M30 55 L30 5" stroke="#C8A96E" stroke-width="1" opacity="0.35"></path>
+    <path d="M20 30 C20 30 30 28 30 20" stroke="#C8A96E" stroke-width="0.9" opacity="0.3"></path>
+    <path d="M40 30 C40 30 30 28 30 20" stroke="#C8A96E" stroke-width="0.9" opacity="0.3"></path>
+  </svg>
+
+</section>
+  </main>
+  
+  <footer class="site-footer" dir="rtl">
+  <div class="footer-main">
+    <div class="footer-container">
+      <div class="footer-grid">
+
+        <!-- Company Info -->
+        <div class="footer-col footer-brand">
+          <div class="footer-logo-wrap">
+            <img src="/assets/logo.webp" alt="פרח בגני" class="logo" />
+          </div>
+          <p class="footer-tagline">עיצוב פרחוני מרגש לכל רגע מיוחד — מאירועים ועד מתנות יומיומיות, עם אהבה ויצירתיות.</p>
+          <div class="footer-social">
+            <a href="[facebook_handle]" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="[instagram_handle]" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="[whatsapp_handle]" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h3 class="footer-heading">
+            <span class="heading-line"></span>
+            ניווט מהיר
+          </h3>
+          <ul class="footer-links">
+            <li><a href="/services"><i class="fas fa-chevron-left nav-arrow"></i>אירועים ושירותים</a></li>
+            <li><a href="/collections"><i class="fas fa-chevron-left nav-arrow"></i>קולקציות</a></li>
+            <li><a href="/contact"><i class="fas fa-chevron-left nav-arrow"></i>צור קשר</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="footer-col">
+          <h3 class="footer-heading">
+            <span class="heading-line"></span>
+            יצירת קשר
+          </h3>
+          <ul class="footer-contact">
+            <li>
+              <span class="contact-icon"><i class="fas fa-envelope"></i></span>
+              <span class="contact-text"><a href="mailto:[business_email]">[business_email]</a></span>
+            </li>
+            <li>
+              <span class="contact-icon"><i class="fas fa-phone"></i></span>
+              <span class="contact-text"><a href="tel:[business_phone]">[business_phone]</a></span>
+            </li>
+            <li><a href="/"><span class="contact-icon"><i class="fas fa-map-marker-alt"></i></span>
+              <span class="contact-text">[business_address]</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Decorative / Floral Accent Column -->
+        <div class="footer-col footer-accent-col">
+          <div class="footer-floral-card">
+            <div class="floral-icon-wrap">
+              <i class="fas fa-seedling"></i>
+            </div>
+            <p class="floral-quote">"כל פרח הוא נשמה שפרחה לאור השמש"</p>
+            <a href="/contact" class="footer-cta-btn">הזמינו עיצוב</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <div class="footer-container">
+      <div class="footer-bottom-inner">
+        <p class="footer-copyright">© 2026 פרח בגני. כל הזכויות שמורות.</p>
+        <div class="footer-legal">
+          <a href="/privacy">מדיניות פרטיות</a>
+          <span class="legal-sep">|</span>
+          <a href="/terms">תנאי שימוש</a>
+          <span class="legal-sep">|</span>
+          <a href="/accessibility">נגישות</a>
+          <span class="legal-sep">|</span>
+          <a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות Zappy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-mobile-lang-menu-script">
+    (function() {
+      function initMobileLangMenu() {
+        if (window.innerWidth > 768) {
+          var existingMenu = document.querySelector('.mobile-lang-menu');
+          if (existingMenu) existingMenu.remove();
+          return;
+        }
+        if (document.querySelector('.mobile-lang-menu')) return;
+        var switcher = document.querySelector('.lang-switcher');
+        if (!switcher) return;
+        var dropdown = switcher.querySelector('.lang-switcher-dropdown');
+        if (!dropdown) return;
+        var options = dropdown.querySelectorAll('.lang-option');
+        if (options.length === 0) return;
+        var navMenu = document.getElementById('navMenu') || document.querySelector('.nav-menu') || document.querySelector('nav ul');
+        if (!navMenu) return;
+        var currentLang = document.documentElement.lang || 'en';
+        var langConfigs = {
+          he: {name:'עברית',flag:'https://api.iconify.design/circle-flags/il.svg'},
+          en: {name:'English',flag:'https://api.iconify.design/circle-flags/us.svg'},
+          ar: {name:'العربية',flag:'https://api.iconify.design/circle-flags/sa.svg'},
+          fr: {name:'Français',flag:'https://api.iconify.design/circle-flags/fr.svg'},
+          es: {name:'Español',flag:'https://api.iconify.design/circle-flags/es.svg'},
+          de: {name:'Deutsch',flag:'https://api.iconify.design/circle-flags/de.svg'},
+          ru: {name:'Русский',flag:'https://api.iconify.design/circle-flags/ru.svg'},
+          zh: {name:'中文',flag:'https://api.iconify.design/circle-flags/cn.svg'},
+          ja: {name:'日本語',flag:'https://api.iconify.design/circle-flags/jp.svg'},
+          pt: {name:'Português',flag:'https://api.iconify.design/circle-flags/br.svg'},
+          it: {name:'Italiano',flag:'https://api.iconify.design/circle-flags/it.svg'},
+          ko: {name:'한국어',flag:'https://api.iconify.design/circle-flags/kr.svg'}
+        };
+        var container = document.createElement('div');
+        container.className = 'mobile-lang-menu';
+        var currentConfig = langConfigs[currentLang] || {name:currentLang,flag:''};
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'mobile-lang-toggle';
+        toggleBtn.type = 'button';
+        var currentFlagHtml = currentConfig.flag ? '<img src="' + currentConfig.flag + '" width="20" height="20" alt="" style="border-radius:50%;margin-right:8px;margin-left:8px;">' : '';
+        toggleBtn.innerHTML = currentFlagHtml + currentConfig.name;
+        container.appendChild(toggleBtn);
+        var optionsDiv = document.createElement('div');
+        optionsDiv.className = 'mobile-lang-options';
+        var currentLink = document.createElement('a');
+        currentLink.className = 'mobile-lang-option active';
+        currentLink.href = '#';
+        currentLink.innerHTML = currentFlagHtml + currentConfig.name;
+        optionsDiv.appendChild(currentLink);
+        options.forEach(function(opt) {
+          var link = document.createElement('a');
+          link.className = 'mobile-lang-option';
+          link.href = opt.getAttribute('href');
+          link.innerHTML = opt.innerHTML;
+          optionsDiv.appendChild(link);
+        });
+        container.appendChild(optionsDiv);
+        navMenu.appendChild(container);
+        toggleBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleBtn.classList.toggle('expanded');
+          optionsDiv.classList.toggle('expanded');
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileLangMenu); }
+      else { initMobileLangMenu(); }
+      window.addEventListener('resize', function() { clearTimeout(window._mlrt); window._mlrt = setTimeout(initMobileLangMenu, 250); });
+    })();
+    </script>
+</body>
+</html>

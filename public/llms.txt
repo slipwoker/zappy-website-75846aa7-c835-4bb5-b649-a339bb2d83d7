@@ -1,0 +1,47 @@
+# Business — Generative Engine Optimization Map
+
+---
+
+## Pages
+
+### בית
+https://example.com
+פרח בגני ברחובות מביא לך פרחים טריים מדי יום: זרי יום הולדת, זרי כלה, סחלבים, צמחים ובלוני הליום. הזמן עכשיו עם משלוח עד הבית!
+
+### אירועים ושירותים
+https://example.com/services
+חתונה, יום הולדת, אבל או קישוט רכב לחתן וכלה — פרח בגני מעצב כל רגע בפרחים טריים ומרגשים. גלה את כל השירותים שלנו והזמן היום!
+
+### קולקציות
+https://example.com/collections
+עיין בקולקציות הפרחים המרהיבות של פרח בגני: זרי יום הולדת, פרחים מיובשים, סחלבים, עציצים, אגרטלים ומתנות מיוחדות לכל אירוע. השראה מחכה לך!
+
+### צור קשר
+https://example.com/contact
+רוצה לשלוח פרחים טריים עם משלוח מהיר או לאסוף עצמאית? צור קשר עם פרח בגני ברחובות עכשיו ונשמח לעזור לך לבחור את הזר המושלם!
+
+## Legal & Policy
+
+### Privacy Policy
+https://example.com/privacy
+Information about how user data is collected, stored, and protected.
+
+### Terms & Conditions
+https://example.com/terms
+Legal terms describing service usage, rights, and policies.
+
+### Accessibility Statement
+https://example.com/accessibility
+Information about WCAG compliance and accessibility features.
+
+---
+
+# Business Context (for LLM understanding)
+
+## About Business
+---
+
+# Additional Resources
+
+- **Sitemap**: https://example.com/sitemap.xml
+- **Robots.txt**: https://example.com/robots.txt
